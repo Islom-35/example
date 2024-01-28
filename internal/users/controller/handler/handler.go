@@ -6,7 +6,7 @@ import (
 	"example/internal/users/app"
 	"example/internal/users/domain"
 	"io"
-	"log"
+	
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -68,7 +68,7 @@ func (u *UserHandler) SignUpUserHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to unmarshal JSON"})
 		return
 	}
-	log.Println(user)
+
 	err = u.userService.SignUp(user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})

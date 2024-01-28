@@ -2,7 +2,7 @@ package app
 
 import (
 	"example/internal/users/domain"
-	"log"
+	
 	"time"
 )
 
@@ -24,7 +24,7 @@ type userService struct {
 
 func (u *userService) LoginUser(fullName, pass string) (bool, error) {
 	ok := true
-	log.Println(">>>>>>.<<<<<<<<>>>>>>>>>>>")
+	
 	ok, err := u.repo.GetFullName(&fullName)
 	if !ok || err != nil {
 		return false, domain.ErrUserNotFound
@@ -34,7 +34,7 @@ func (u *userService) LoginUser(fullName, pass string) (bool, error) {
 	if !ok || err != nil {
 		return false, domain.ErrUserNotFound
 	}
-	log.Println(">>>>>>.<<<<<<<<")
+	
 
 	return true, nil
 }
