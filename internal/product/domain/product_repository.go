@@ -10,31 +10,26 @@ var (
 )
 
 type Product struct {
-	Id         int `gorm:"primarykey" json:"id"`
+	Id         int    `gorm:"primarykey" json:"id"`
 	Name       string `json:"name"`
-	Price      int `json:"price"`
+	Price      int    `json:"price"`
 	Created_at time.Time
 }
 
-type ForPagination struct{
-	Page uint `json:"page"`
+type GetPaginationInput struct {
+	Page  uint `json:"page"`
 	Limit uint `json:"limit"`
 }
 
-type UpdateProductInput struct{
-	Name       *string `json:"name"`
-	Price      *int `json:"price"`
+type UpdateProductInput struct {
+	Name  *string `json:"name"`
+	Price *int    `json:"price"`
 }
-
-
 
 type ProductRespository interface {
-	Save(product Product) error
-	Get(ID int)(Product,error)
-	Update(ID int, inp UpdateProductInput) error
-	FindAll(offset, limit int)([]Product,error)
-	Remove(ID int)error
+	Save(product *Product) error
+	Get(ID *int) (Product, error)
+	Update(ID *int, inp *UpdateProductInput) error
+	FindAll(page, limit int)([]*Product,error)
+	Remove(ID int) error
 }
-
-
-

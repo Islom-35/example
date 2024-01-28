@@ -45,10 +45,10 @@ func main() {
 
 	{
 		productGroup.POST("", productHandler.CreateProduct)
-		productGroup.GET("/{id:[0-9]+}", productHandler.DeleteProductByID)
-		productGroup.GET("", productHandler.GetPagesProduct)
-		productGroup.DELETE("/{id:[0-9]+}", productHandler.DeleteProductByID)
-		productGroup.PUT("/{id:[0-9]+}", productHandler.UpdateProductByID)
+		productGroup.GET("/:id", productHandler.GetProductByID)
+		productGroup.GET("/page", productHandler.GetPagesProduct)
+		productGroup.DELETE("/:id", productHandler.DeleteProductByID)
+		productGroup.PUT("/:id", productHandler.UpdateProductByID)
 	}
 
 	server := &http.Server{Addr: os.Getenv("HTTP_PORT"), Handler: router}
