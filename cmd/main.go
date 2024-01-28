@@ -41,7 +41,7 @@ func main() {
 	productServer := productApp.NewProductService(productRepo)
 	productHandler := productHandler.NewProductHandler(productServer)
 
-	productGroup := router.Group("/pruduct")
+	productGroup := router.Group("/product")
 
 	{
 		productGroup.POST("", productHandler.CreateProduct)
