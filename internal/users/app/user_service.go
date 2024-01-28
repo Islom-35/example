@@ -2,16 +2,14 @@ package app
 
 import (
 	"example/internal/users/domain"
-	
+	"log"
 	"time"
 )
 
 type UserService interface {
-	Create(User *domain.User) error
-	Get(ID *int) (domain.User, error)
-	Update(ID *int, inp *domain.UpdateUserInput) error
+	SignUp(user domain.User) error
+	LoginUser(FullName, pass string) (bool, error)
 	FindAll(page, limit int) ([]*domain.User, error)
-	Remove(ID int) error
 }
 
 func NewUserService(repo domain.UserRespository) UserService {
@@ -24,26 +22,58 @@ type userService struct {
 	repo domain.UserRespository
 }
 
-func (u *userService)Create(user *domain.User) error {
+func (u *userService) LoginUser(fullName, pass string) (bool, error) {
+	ok := true
+	log.Println(">>>>>>.<<<<<<<<>>>>>>>>>>>")
+	ok, err := u.repo.GetFullName(&fullName)
+	if !ok || err != nil {
+		return false, domain.ErrUserNotFound
+	}
+
+	ok, err = u.repo.GetPassword(&pass)
+	if !ok || err != nil {
+		return false, domain.ErrUserNotFound
+	}
+	log.Println(">>>>>>.<<<<<<<<")
+
+	return true, nil
+}
+
+func (u *userService) SignUp(user domain.User) error {
+	err:=Checker(user)
+	if err !=nil{
+		return err
+	}
+
+	_, err = u.repo.GetFullName(&user.FullName)
+	if err != nil {
+
+		return domain.ErrUserAlreadyExists
+	}
+
 	user.Created_at = time.Now()
-	if err := u.repo.Save(user); err != nil {
+	if err := u.repo.Save(&user); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (u *userService) Get(ID *int) (domain.User, error) {
-	return u.repo.Get(ID)
-}
 
-func (u *userService) Update(ID *int, inp *domain.UpdateUserInput) error {
-	return u.repo.Update(ID, inp)
-}
 
 func (u *userService) FindAll(page, limit int) ([]*domain.User, error) {
 	return u.repo.FindAll(page, limit)
 }
 
-func (u *userService) Remove(ID int) error {
-	return u.repo.Remove(ID)
+func Checker(user domain.User)error{
+	if user.Password == ""{
+		return domain.ErrInvalidPassword
+	}
+	if user.FullName == ""{
+		return domain.ErrInvalidFullName
+	}
+
+	if user.UserName == ""{
+		return domain.ErrInvalidUserName
+	}
+	return nil
 }

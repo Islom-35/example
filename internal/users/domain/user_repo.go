@@ -6,14 +6,18 @@ import (
 )
 
 var (
-	ErrUserNotFound = errors.New("UserNotFound")
+	ErrUserNotFound       = errors.New("UserNotFound")
+	ErrUserAlreadyExists  = errors.New("UserAlreadyExists")
+	ErrInvalidPassword    = errors.New("invalid password")
+	ErrInvalidUserName    = errors.New("invalid user_name")
+	ErrInvalidFullName   = errors.New("invalid full_name")
 )
 
 type User struct {
 	Id         int    `gorm:"primarykey" json:"id"`
-	UserName       string `json:"name"`
-	FullName       string `json:"full_name"`
-	Password	string `json:"password"`
+	UserName   string `json:"user_name"`
+	FullName   string `json:"full_name"`
+	Password   string `json:"password"`
 	Created_at time.Time
 }
 
@@ -22,16 +26,10 @@ type GetPaginationInput struct {
 	Limit uint `json:"limit"`
 }
 
-type UpdateUserInput struct {
-	UserName  *string `json:"name"`
-	Password *string    `json:"price"`
-}
-
-
 type UserRespository interface {
 	Save(user *User) error
 	Get(ID *int) (User, error)
-	Update(ID *int, inp *UpdateUserInput) error
+	GetPassword(password *string) (bool, error)
+	GetFullName(fullName *string) (bool, error)
 	FindAll(page, limit int) ([]*User, error)
-	Remove(ID int) error
 }

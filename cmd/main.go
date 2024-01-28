@@ -11,6 +11,10 @@ import (
 	productAdap "example/internal/product/adapters"
 	productApp "example/internal/product/app"
 	productHandler "example/internal/product/controller/handler"
+
+	userAdap "example/internal/users/adapters"
+	userApp "example/internal/users/app"
+	userHandler "example/internal/users/controller/handler"
 )
 
 func main() {
@@ -38,8 +42,8 @@ func main() {
 	})
 
 	productRepo := productAdap.NewProductRepository(db.DB)
-	productServer := productApp.NewProductService(productRepo)
-	productHandler := productHandler.NewProductHandler(productServer)
+	productService := productApp.NewProductService(productRepo)
+	productHandler := productHandler.NewProductHandler(productService)
 
 	productGroup := router.Group("/product")
 
@@ -49,6 +53,18 @@ func main() {
 		productGroup.GET("/page", productHandler.GetPagesProduct)
 		productGroup.DELETE("/:id", productHandler.DeleteProductByID)
 		productGroup.PUT("/:id", productHandler.UpdateProductByID)
+	}
+
+	userRepo := userAdap.NewUserRepository(db.DB)
+	userService := userApp.NewUserService(userRepo)
+	userHandler := userHandler.NewUserHandler(userService)
+
+	userGroup := router.Group("/users")
+
+	{
+		userGroup.POST("/login", userHandler.LoginUserHandler)
+		userGroup.POST("/sign-up", userHandler.SignUpUserHandler)
+		userGroup.GET("/page", userHandler.GetPagesUser)
 	}
 
 	server := &http.Server{Addr: os.Getenv("HTTP_PORT"), Handler: router}

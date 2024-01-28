@@ -1,8 +1,8 @@
 package adapters
 
-
 import (
 	"example/internal/users/domain"
+	
 
 	"gorm.io/gorm"
 )
@@ -11,14 +11,14 @@ type userRepo struct {
 	db *gorm.DB
 }
 
-func NewuserRepository(db *gorm.DB) domain.UserRespository {
+func NewUserRepository(db *gorm.DB) domain.UserRespository {
 	return &userRepo{
 		db: db,
 	}
 }
 
 func (u *userRepo) Save(user *domain.User) error {
-
+	
 	err := u.db.Create(&user)
 
 	return err.Error
@@ -31,18 +31,28 @@ func (u *userRepo) Get(ID *int) (domain.User, error) {
 	return *user, result.Error
 }
 
-func (u *userRepo) Update(ID *int, inp *domain.UpdateUserInput) error {
-	user, err := u.Get(ID)
-	if err != nil {
-		return err
+func (u *userRepo) GetFullName(fullName *string) (bool, error) {
+	ok := true
+	
+	result := u.db.Where("full_name = ?", *fullName)
+
+	if result.Error != nil {
+		return false, result.Error
 	}
 
-	user.UserName = *inp.UserName
-	user.Password = *inp.Password
+	return ok, nil
+}
 
-	result := u.db.Save(&user)
+func (u *userRepo) GetPassword(password *string) (bool, error) {
+	ok := true
+	
+	result := u.db.Where("password = ?", *password)
 
-	return result.Error
+	if result.Error != nil {
+		return false, result.Error
+	}
+
+	return ok, nil
 }
 
 func (u *userRepo) FindAll(page, limit int) ([]*domain.User, error) {
@@ -51,14 +61,4 @@ func (u *userRepo) FindAll(page, limit int) ([]*domain.User, error) {
 	offset := (page - 1) * limit
 	result := u.db.Order("id asc").Limit(limit).Offset(offset).Find(&users)
 	return users, result.Error
-}
-
-func (u *userRepo) Remove(ID int) error {
-	post, err := u.Get(&ID)
-	if err != nil {
-		return err
-	}
-	result := u.db.Delete(post)
-
-	return result.Error
 }
