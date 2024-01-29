@@ -7,10 +7,59 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
+type GetPaginationInput struct {
+	Page  uint `json:"page"`
+	Limit uint `json:"limit"`
+}
 
+// ProductRequest represents the product request structure
+// swagger:request ProductResponse
+type ProductRequest struct {
+	Id int `json:"id"`
+	Name string `json:"name" gorm:"not null"`
+	Price int `json:"price" gorm:"not null"`
+}
+
+type UpdateProductInput struct {
+	Name  *string `json:"name"`
+	Price *int    `json:"price"`
+}
+
+// ProductResponse represents the product response structure
+// swagger:response ProductResponse
+type ProductResponse struct {
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Price int `json:"price"`
+	Created_at time.Time `json:"created_at"`
+}
+
+// SuccessResponse represents the success response structure
+// swagger:response SuccessResponse
+type SuccessResponse struct {
+	Message string `json:"message"`
+}
+
+// ErrorResponse represents the error response structure
+// swagger:response ErrorResponse
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
+// @Summary Create a new product
+// @Description Create a new product with the provided JSON data
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param product body ProductRequest true "Product object that needs to be created"
+// @Success 201 {object} SuccessResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /products [post]
 func (h *Handler) CreateProduct(c *gin.Context) {
 	reqBytes, err := io.ReadAll(c.Request.Body)
 	if err != nil {
@@ -34,6 +83,17 @@ func (h *Handler) CreateProduct(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "Product created successfully"})
 }
 
+// @Summary Get a product by ID
+// @Description Get product details by providing its ID
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param id path int true "Product ID"
+// @Success 200 {object} ProductResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /products/{id} [get]
 func (h *Handler) GetProductByID(c *gin.Context) {
 	id, err := getIdFromRequest(c)
 	if err != nil {
@@ -55,6 +115,18 @@ func (h *Handler) GetProductByID(c *gin.Context) {
 	c.JSON(http.StatusOK, order)
 }
 
+// @Summary Update a product by ID
+// @Description Update a product by providing its ID and new data
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param id path int true "Product ID"
+// @Param input body UpdateProductInput true "Update Product Input"
+// @Success 200 {object} SuccessResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 404 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /products/{id} [put]
 func (h *Handler) UpdateProductByID(c *gin.Context) {
 	id, err := getIdFromRequest(c)
 	if err != nil {
@@ -83,6 +155,16 @@ func (h *Handler) UpdateProductByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Product updated successfully"})
 }
 
+// @Summary Get paginated list of products
+// @Description Get a paginated list of products based on provided input
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param input body GetPaginationInput true "Pagination Input"
+// @Success 200 {array} ProductResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /products [get]
 func (h *Handler) GetPagesProduct(c *gin.Context) {
 	reqBytes, err := io.ReadAll(c.Request.Body)
 	if err != nil {
@@ -105,6 +187,16 @@ func (h *Handler) GetPagesProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, products)
 }
 
+// @Summary Delete a product by ID
+// @Description Delete a product by providing its ID
+// @Tags products
+// @Accept json
+// @Produce json
+// @Param id path int true "Product ID"
+// @Success 200 {object} SuccessResponse
+// @Failure 400 {object} ErrorResponse
+// @Failure 500 {object} ErrorResponse
+// @Router /products/{id} [delete]
 func (h *Handler) DeleteProductByID(c *gin.Context) {
 	id, err := getIdFromRequest(c)
 	if err != nil {
@@ -120,6 +212,7 @@ func (h *Handler) DeleteProductByID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"deleted": id})
 }
+
 func getIdFromRequest(c *gin.Context) (int, error) {
 	idStr := c.Param("id")
 	if idStr == "" {

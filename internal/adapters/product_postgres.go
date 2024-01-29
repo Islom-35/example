@@ -57,7 +57,7 @@ func (p *productRepo) Remove(ID int) error {
 	if err != nil {
 		return err
 	}
-	result := p.db.Delete(post)
+	result := p.db.Delete(&post)
 
 	return result.Error
 }

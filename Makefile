@@ -74,3 +74,9 @@ mod-tidy:
 	@echo "Go mod tidy"
 	sleep 2
 	docker-compose exec app go mod tidy
+
+.PHONY: swag
+swag:
+	@echo "Go generate swagger"
+	sleep 2
+	swag init -g ./cmd/main.go

@@ -1,0 +1,326 @@
+basePath: /
+definitions:
+  rest.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  rest.GetPaginationInput:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+    type: object
+  rest.ProductRequest:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: integer
+    type: object
+  rest.ProductResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: integer
+    type: object
+  rest.SuccessResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  rest.UpdateProductInput:
+    properties:
+      name:
+        type: string
+      price:
+        type: integer
+    type: object
+  rest.User:
+    properties:
+      full_name:
+        type: string
+      password:
+        type: string
+      user_name:
+        type: string
+    type: object
+  rest.loginRequest:
+    properties:
+      password:
+        type: string
+      user_name:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API Server for exampe
+  title: Example Api
+  version: "2.0"
+paths:
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of products based on provided input
+      parameters:
+      - description: Pagination Input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/rest.GetPaginationInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/rest.ProductResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Get paginated list of products
+      tags:
+      - products
+    post:
+      consumes:
+      - application/json
+      description: Create a new product with the provided JSON data
+      parameters:
+      - description: Product object that needs to be created
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/rest.ProductRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/rest.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Create a new product
+      tags:
+      - products
+  /products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a product by providing its ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Delete a product by ID
+      tags:
+      - products
+    get:
+      consumes:
+      - application/json
+      description: Get product details by providing its ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.ProductResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Get a product by ID
+      tags:
+      - products
+    put:
+      consumes:
+      - application/json
+      description: Update a product by providing its ID and new data
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update Product Input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/rest.UpdateProductInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Update a product by ID
+      tags:
+      - products
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Login a user by providing their full name and password
+      parameters:
+      - description: loginRequest object that needs to be login
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/rest.loginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/rest.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Login a user
+      tags:
+      - users
+  /users/page:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of users based on provided input
+      parameters:
+      - description: Pagination Input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/rest.GetPaginationInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/rest.User'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Get paginated list of users
+      tags:
+      - users
+  /users/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Sign up a new user with the provided JSON data
+      parameters:
+      - description: User object that needs to be signed up
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/rest.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/rest.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/rest.ErrorResponse'
+      summary: Sign up a new user
+      tags:
+      - users
+swagger: "2.0"

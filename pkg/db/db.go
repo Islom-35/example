@@ -20,8 +20,6 @@ func New(host, port, name, user, password string) (*PostgresDB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("unable to connect to database: %w", err)
 	}
-	// product :=domain.Product{}
-	// db.AutoMigrate(product)
 
 	return &PostgresDB{DB: db}, nil
 }

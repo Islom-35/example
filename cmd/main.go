@@ -10,9 +10,19 @@ import (
 	"example/internal/adapters"
 	"example/internal/app"
 	"example/internal/controller/rest"
+	"example/internal/domain"
 )
 
+
+// New ...
+// @title           Example Api
+// @version         2.0
+// @description     API Server for exampe
+
+// @host    	   localhost:8080
+// @BasePath /
 func main() {
+
 	db, err := db.New(
 		os.Getenv("POSTGRES_HOST"),
 		os.Getenv("POSTGRES_PORT"),
@@ -24,8 +34,12 @@ func main() {
 	if err != nil {
 		log.Printf("Failed to connect to database: %v", err)
 	}
+	var product *domain.Product
+	var users *domain.User
+	db.AutoMigrate(&product)
+	db.AutoMigrate(&users)
 
-	// defer db.Close()
+	defer db.Close()
 
 	productRepo := adapters.NewProductRepository(db.DB)
 	productService := app.NewProductService(productRepo)
@@ -36,7 +50,7 @@ func main() {
 
 	// init & run server
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%v", os.Getenv("HTTP_PORT")),
+		Addr:    fmt.Sprintf("%v", os.Getenv("HTTP_PORT")),
 		Handler: handlers.InitRouters(),
 	}
 

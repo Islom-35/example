@@ -2,8 +2,6 @@ package app
 
 import (
 	"example/internal/domain"
-	
-	"time"
 )
 
 type UserService interface {
@@ -22,10 +20,10 @@ type userService struct {
 	repo domain.UserRespository
 }
 
-func (u *userService) LoginUser(fullName, pass string) (bool, error) {
+func (u *userService) LoginUser(userName, pass string) (bool, error) {
 	ok := true
-	
-	ok, err := u.repo.GetFullName(&fullName)
+
+	ok, err := u.repo.GetUserName(&userName)
 	if !ok || err != nil {
 		return false, domain.ErrUserNotFound
 	}
@@ -34,45 +32,41 @@ func (u *userService) LoginUser(fullName, pass string) (bool, error) {
 	if !ok || err != nil {
 		return false, domain.ErrUserNotFound
 	}
-	
 
 	return true, nil
 }
 
 func (u *userService) SignUp(user domain.User) error {
-	err:=Checker(user)
-	if err !=nil{
+	err := Checker(user)
+	if err != nil {
 		return err
 	}
 
-	_, err = u.repo.GetFullName(&user.FullName)
+	_, err = u.repo.GetUserName(&user.FullName)
 	if err != nil {
 
 		return domain.ErrUserAlreadyExists
 	}
 
-	user.Created_at = time.Now()
 	if err := u.repo.Save(&user); err != nil {
 		return err
 	}
 	return nil
 }
 
-
-
 func (u *userService) FindAll(page, limit int) ([]*domain.User, error) {
 	return u.repo.FindAll(page, limit)
 }
 
-func Checker(user domain.User)error{
-	if user.Password == ""{
+func Checker(user domain.User) error {
+	if user.Password == "" {
 		return domain.ErrInvalidPassword
 	}
-	if user.FullName == ""{
+	if user.FullName == "" {
 		return domain.ErrInvalidFullName
 	}
 
-	if user.UserName == ""{
+	if user.UserName == "" {
 		return domain.ErrInvalidUserName
 	}
 	return nil

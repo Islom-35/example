@@ -1,6 +1,8 @@
 package domain
 
-import "time"
+import (
+	"gorm.io/gorm"
+)
 
 type ProductRespository interface {
 	Save(product *Product) error
@@ -10,9 +12,16 @@ type ProductRespository interface {
 	Remove(ID int) error
 }
 
-type Product struct {
-	Id         int    `gorm:"primarykey" json:"id"`
-	Name       string `json:"name"`
-	Price      int    `json:"price"`
-	Created_at time.Time
+type UpdateProductInput struct {
+	Name  *string `json:"name"`
+	Price *int    `json:"price"`
 }
+
+
+// Product represents a product model
+type Product struct {
+	gorm.Model
+	Name string `json:"name" gorm:"not null"`
+	Price int `json:"price" gorm:"not null"`
+}
+

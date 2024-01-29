@@ -2,7 +2,6 @@ package app
 
 import (
 	"example/internal/domain"
-	"time"
 )
 
 type ProductService interface {
@@ -24,7 +23,7 @@ type productService struct {
 }
 
 func (p *productService) Create(product *domain.Product) error {
-	product.Created_at = time.Now()
+
 	if err := p.repo.Save(product); err != nil {
 		return err
 	}

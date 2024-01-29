@@ -31,10 +31,10 @@ func (u *userRepo) Get(ID *int) (domain.User, error) {
 	return *user, result.Error
 }
 
-func (u *userRepo) GetFullName(fullName *string) (bool, error) {
+func (u *userRepo) GetUserName(userName *string) (bool, error) {
 	ok := true
 	
-	result := u.db.Where("full_name = ?", *fullName)
+	result := u.db.Where("full_name = ?", *userName)
 
 	if result.Error != nil {
 		return false, result.Error
