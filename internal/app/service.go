@@ -1,7 +1,7 @@
 package app
 
 import (
-	"example/internal/product/domain"
+	"example/internal/domain"
 	"time"
 )
 

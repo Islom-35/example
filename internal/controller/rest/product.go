@@ -1,10 +1,9 @@
-package handler
+package rest
 
 import (
 	"encoding/json"
 	"errors"
-	"example/internal/product/app"
-	"example/internal/product/domain"
+	"example/internal/domain"
 	"io"
 	"net/http"
 	"strconv"
@@ -12,17 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ProductHandler struct {
-	productService app.ProductService
-}
-
-func NewProductHandler(productService app.ProductService) *ProductHandler {
-	return &ProductHandler{
-		productService: productService,
-	}
-}
-
-func (p *ProductHandler) CreateProduct(c *gin.Context) {
+func (h *Handler) CreateProduct(c *gin.Context) {
 	reqBytes, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
@@ -35,7 +24,7 @@ func (p *ProductHandler) CreateProduct(c *gin.Context) {
 		return
 	}
 
-	err = p.productService.Create(&product)
+	err = h.productService.Create(&product)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create product"})
 		return
@@ -45,14 +34,14 @@ func (p *ProductHandler) CreateProduct(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "Product created successfully"})
 }
 
-func (p *ProductHandler) GetProductByID(c *gin.Context) {
+func (h *Handler) GetProductByID(c *gin.Context) {
 	id, err := getIdFromRequest(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	order, err := p.productService.Get(&id)
+	order, err := h.productService.Get(&id)
 
 	if err != nil {
 		if errors.Is(err, domain.ErrProductNotFound) {
@@ -66,7 +55,7 @@ func (p *ProductHandler) GetProductByID(c *gin.Context) {
 	c.JSON(http.StatusOK, order)
 }
 
-func (p *ProductHandler) UpdateProductByID(c *gin.Context) {
+func (h *Handler) UpdateProductByID(c *gin.Context) {
 	id, err := getIdFromRequest(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -85,7 +74,7 @@ func (p *ProductHandler) UpdateProductByID(c *gin.Context) {
 		return
 	}
 
-	err = p.productService.Update(&id, &inp)
+	err = h.productService.Update(&id, &inp)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -94,7 +83,7 @@ func (p *ProductHandler) UpdateProductByID(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Product updated successfully"})
 }
 
-func (p *ProductHandler) GetPagesProduct(c *gin.Context) {
+func (h *Handler) GetPagesProduct(c *gin.Context) {
 	reqBytes, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
@@ -107,7 +96,7 @@ func (p *ProductHandler) GetPagesProduct(c *gin.Context) {
 		return
 	}
 
-	products, err := p.productService.FindAll(int(inp.Page), int(inp.Limit))
+	products, err := h.productService.FindAll(int(inp.Page), int(inp.Limit))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve products"})
 		return
@@ -116,14 +105,14 @@ func (p *ProductHandler) GetPagesProduct(c *gin.Context) {
 	c.JSON(http.StatusOK, products)
 }
 
-func (p *ProductHandler) DeleteProductByID(c *gin.Context) {
+func (h *Handler) DeleteProductByID(c *gin.Context) {
 	id, err := getIdFromRequest(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = p.productService.Remove(id)
+	err = h.productService.Remove(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

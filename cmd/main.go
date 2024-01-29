@@ -1,20 +1,15 @@
 package main
 
 import (
-	"example/internal/db"
+	"example/pkg/db"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 
-	"github.com/gin-gonic/gin"
-
-	productAdap "example/internal/product/adapters"
-	productApp "example/internal/product/app"
-	productHandler "example/internal/product/controller/handler"
-
-	userAdap "example/internal/users/adapters"
-	userApp "example/internal/users/app"
-	userHandler "example/internal/users/controller/handler"
+	"example/internal/adapters"
+	"example/internal/app"
+	"example/internal/controller/rest"
 )
 
 func main() {
@@ -32,48 +27,23 @@ func main() {
 
 	// defer db.Close()
 
-	router := gin.Default()
+	productRepo := adapters.NewProductRepository(db.DB)
+	productService := app.NewProductService(productRepo)
+	userRepo := adapters.NewUserRepository(db.DB)
+	userService := app.NewUserService(userRepo)
 
-	// Define a route and its handler
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Hello, Gin!",
-		})
-	})
+	handlers := rest.NewHandler(productService, userService)
 
-	productRepo := productAdap.NewProductRepository(db.DB)
-	productService := productApp.NewProductService(productRepo)
-	productHandler := productHandler.NewProductHandler(productService)
-
-	productGroup := router.Group("/product")
-
-	{
-		productGroup.POST("", productHandler.CreateProduct)
-		productGroup.GET("/:id", productHandler.GetProductByID)
-		productGroup.GET("/page", productHandler.GetPagesProduct)
-		productGroup.DELETE("/:id", productHandler.DeleteProductByID)
-		productGroup.PUT("/:id", productHandler.UpdateProductByID)
+	// init & run server
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%v", os.Getenv("HTTP_PORT")),
+		Handler: handlers.InitRouters(),
 	}
 
-	userRepo := userAdap.NewUserRepository(db.DB)
-	userService := userApp.NewUserService(userRepo)
-	userHandler := userHandler.NewUserHandler(userService)
+	log.Println("SERVER STARTED")
 
-	userGroup := router.Group("/users")
-
-	{
-		userGroup.POST("/login", userHandler.LoginUserHandler)
-		userGroup.POST("/sign-up", userHandler.SignUpUserHandler)
-		userGroup.GET("/page", userHandler.GetPagesUser)
+	if err := srv.ListenAndServe(); err != nil {
+		log.Fatal(err)
 	}
-
-	server := &http.Server{Addr: os.Getenv("HTTP_PORT"), Handler: router}
-	log.Println("Starting server on port...", os.Getenv("HTTP_PORT"))
-	if err := server.ListenAndServe(); err != http.ErrServerClosed {
-		log.Println(">>>>", err)
-	}
-	log.Println(server.Addr)
-	log.Println(">>>")
-	defer server.Close()
 
 }

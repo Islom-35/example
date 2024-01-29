@@ -1,7 +1,7 @@
 package adapters
 
 import (
-	"example/internal/product/domain"
+	"example/internal/domain"
 
 	"gorm.io/gorm"
 )

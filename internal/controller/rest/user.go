@@ -1,12 +1,11 @@
-package handler
+package rest
 
 import (
 	"encoding/json"
-	"example/internal/pkg/jwt"
-	"example/internal/users/app"
-	"example/internal/users/domain"
+	"example/internal/domain"
+	"example/pkg/jwt"
 	"io"
-	
+
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,15 +16,7 @@ type loginRequest struct {
 	Password string
 }
 
-type UserHandler struct {
-	userService app.UserService
-}
-
-func NewUserHandler(userService app.UserService) *UserHandler {
-	return &UserHandler{userService: userService}
-}
-
-func (u *UserHandler) LoginUserHandler(ctx *gin.Context) {
+func (h *Handler) LoginUserHandler(ctx *gin.Context) {
 	var req loginRequest
 
 	// Decoding requested body to Go object
@@ -34,7 +25,7 @@ func (u *UserHandler) LoginUserHandler(ctx *gin.Context) {
 		return
 	}
 
-	passed, err := u.userService.LoginUser(req.FullName, req.Password)
+	passed, err := h.userService.LoginUser(req.FullName, req.Password)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid password or fullname "})
 		return
@@ -56,7 +47,7 @@ func (u *UserHandler) LoginUserHandler(ctx *gin.Context) {
 	}
 }
 
-func (u *UserHandler) SignUpUserHandler(c *gin.Context) {
+func (h *Handler) SignUpUserHandler(c *gin.Context) {
 	reqBytes, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
@@ -69,7 +60,7 @@ func (u *UserHandler) SignUpUserHandler(c *gin.Context) {
 		return
 	}
 
-	err = u.userService.SignUp(user)
+	err = h.userService.SignUp(user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
@@ -79,7 +70,7 @@ func (u *UserHandler) SignUpUserHandler(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "User created successfully"})
 }
 
-func (u *UserHandler) GetPagesUser(c *gin.Context) {
+func (h *Handler) GetPagesUser(c *gin.Context) {
 	reqBytes, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
@@ -92,9 +83,9 @@ func (u *UserHandler) GetPagesUser(c *gin.Context) {
 		return
 	}
 
-	products, err := u.userService.FindAll(int(inp.Page), int(inp.Limit))
+	products, err := h.userService.FindAll(int(inp.Page), int(inp.Limit))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve users"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve"})
 		return
 	}
 

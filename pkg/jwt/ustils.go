@@ -2,7 +2,7 @@ package jwt
 
 import (
 	"errors"
-	"example/internal/pkg/config"
+	"example/pkg/config"
 	"time"
 
 	"github.com/golang-jwt/jwt"

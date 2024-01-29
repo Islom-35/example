@@ -1,16 +1,7 @@
 package domain
 
 import (
-	"errors"
 	"time"
-)
-
-var (
-	ErrUserNotFound       = errors.New("UserNotFound")
-	ErrUserAlreadyExists  = errors.New("UserAlreadyExists")
-	ErrInvalidPassword    = errors.New("invalid password")
-	ErrInvalidUserName    = errors.New("invalid user_name")
-	ErrInvalidFullName   = errors.New("invalid full_name")
 )
 
 type User struct {
@@ -26,6 +17,11 @@ type GetPaginationInput struct {
 	Limit uint `json:"limit"`
 }
 
+type UpdateProductInput struct {
+	Name  *string `json:"name"`
+	Price *int    `json:"price"`
+}
+
 type UserRespository interface {
 	Save(user *User) error
 	Get(ID *int) (User, error)
@@ -33,3 +29,4 @@ type UserRespository interface {
 	GetFullName(fullName *string) (bool, error)
 	FindAll(page, limit int) ([]*User, error)
 }
+
