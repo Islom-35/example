@@ -1,7 +1,6 @@
 package jwt
 
 import (
-	"errors"
 	"example/pkg/config"
 	"time"
 
@@ -23,33 +22,4 @@ func CreateToken(sub string) (string, error) {
 	}
 
 	return token, nil
-}
-
-func VerifyToken(token string) (jwt.MapClaims, error) {
-	keyFunc := func(token *jwt.Token) (interface{}, error) {
-		jwtSecretKey := config.NewConfig().JwtSecretKey
-		_, ok := token.Method.(*jwt.SigningMethodHMAC)
-		if !ok {
-			return nil, errors.New("invalid token")
-		}
-
-		return []byte(jwtSecretKey), nil
-	}
-
-	jwtToken, err := jwt.Parse(token, keyFunc)
-	if err != nil {
-		if ver, ok := err.(*jwt.ValidationError); ok {
-			if ver.Errors&jwt.ValidationErrorExpired != 0 {
-				return nil, errors.New("expired token")
-			}
-		}
-		return nil, errors.New(err.Error())
-	}
-
-	claims, ok := jwtToken.Claims.(jwt.MapClaims)
-	if !ok {
-		return nil, errors.New(err.Error())
-	}
-
-	return claims, nil
 }
