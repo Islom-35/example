@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"example/internal/domain"
 	"example/pkg/jwt"
-	"fmt"
 	"io"
-	"log"
 
 	"net/http"
 
@@ -39,16 +37,16 @@ func (h *Handler) LoginUserHandler(ctx *gin.Context) {
 	var req loginRequest
 
 	// Decoding requested body to Go object
-	log.Println(">>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<")
+
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
 		return
 	}
 
 	passed, err := h.userService.LoginUser(req.UserName, req.Password)
-	log.Println(">>>>>>>>>>>>>>>>>>>>>>")
+
 	if err != nil {
-		fmt.Println(">>>")
+
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid password or username "})
 		return
 	}
@@ -85,9 +83,9 @@ func (h *Handler) SignUpUserHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read request body"})
 		return
 	}
-	
+
 	var user domain.User
- 
+
 	if err = json.Unmarshal(reqBytes, &user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to unmarshal JSON"})
 		return
