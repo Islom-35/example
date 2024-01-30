@@ -6,7 +6,7 @@ import (
 
 type UserService interface {
 	SignUp(user domain.User) error
-	LoginUser(FullName, pass string) (bool, error)
+	LoginUser(userName, pass string) (bool, error)
 	FindAll(page, limit int) ([]*domain.User, error)
 }
 
