@@ -459,9 +459,6 @@ const docTemplate = `{
         "rest.ProductRequest": {
             "type": "object",
             "properties": {
-                "id": {
-                    "type": "integer"
-                },
                 "name": {
                     "type": "string"
                 },
@@ -543,12 +540,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "2.0",
+	Version:          "1.0",
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Example Api",
-	Description:      "API Server for exampe",
+	Title:            "Example App API",
+	Description:      "API Server for Example Application",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

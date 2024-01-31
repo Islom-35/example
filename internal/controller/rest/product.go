@@ -19,7 +19,6 @@ type GetPaginationInput struct {
 // ProductRequest represents the product request structure
 // swagger:request ProductResponse
 type ProductRequest struct {
-	Id int `json:"id"`
 	Name string `json:"name" gorm:"not null"`
 	Price int `json:"price" gorm:"not null"`
 }
@@ -205,13 +204,13 @@ func (h *Handler) GetPagesProduct(c *gin.Context) {
 func (h *Handler) DeleteProductByID(c *gin.Context) {
 	id, err := getIdFromRequest(c)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		newErrorResponse(c,http.StatusBadRequest,err.Error())
 		return
 	}
 
 	err = h.productService.Remove(id)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		newErrorResponse(c,http.StatusInternalServerError,err.Error())
 		return
 	}
 

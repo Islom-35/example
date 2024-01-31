@@ -32,9 +32,9 @@ func (u *userRepo) Get(ID *int) (domain.User, error) {
 
 func (u *userRepo) GetUser(userName, passwordHash string) (*domain.User, error) {
 	var user *domain.User
-
+	log.Println("kjkjkj")
 	result := u.db.Where(&domain.User{UserName: userName, PasswordHash: passwordHash}).First(&user)
-	log.Println(user)
+	log.Println(&user)
 
 	if result.Error != nil {
 		// Check if the error is due to record not found
@@ -51,6 +51,18 @@ func (u *userRepo) GetUserName(userName *string) (bool, error) {
 	ok := true
 
 	result := u.db.Where("full_name = ?", *userName)
+
+	if result.Error != nil {
+		return false, result.Error
+	}
+
+	return ok, nil
+}
+
+func (u *userRepo) GetUserPassword(password *string) (bool, error) {
+	ok := true
+
+	result := u.db.Where("password_hash = ?", *password)
 
 	if result.Error != nil {
 		return false, result.Error

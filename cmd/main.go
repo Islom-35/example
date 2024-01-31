@@ -14,13 +14,13 @@ import (
 )
 
 
-// New ...
-// @title           Example Api
-// @version         2.0
-// @description     API Server for exampe
+// @title Example App API
+// @version 1.0
+// @description API Server for Example Application
 
-// @host    	   localhost:8080
+// @host localhost:8080
 // @BasePath /
+
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
 // @name Authorization

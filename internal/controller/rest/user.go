@@ -84,7 +84,7 @@ func (h *Handler) SignUpUserHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to unmarshal JSON"})
 		return
 	}
-
+	
 	err = h.userService.SignUp(user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})

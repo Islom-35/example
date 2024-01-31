@@ -17,11 +17,9 @@ type UpdateProductInput struct {
 	Price *int    `json:"price"`
 }
 
-
 // Product represents a product model
 type Product struct {
 	gorm.Model
-	Name string `json:"name" gorm:"not null"`
-	Price int `json:"price" gorm:"not null"`
+	Name  string `json:"name" gorm:"not null"`
+	Price int    `json:"price" gorm:"not null"`
 }
-

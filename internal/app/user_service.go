@@ -5,6 +5,7 @@ import (
 	"errors"
 	"example/internal/domain"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -26,6 +27,7 @@ type UserService interface {
 	FindAll(page, limit int) ([]*domain.User, error)
 	ParseToken(accessToken string) (int, error)
 	GenerateToken(username, password string) (string, error)
+	// generatePasswordHash(password string) string
 }
 
 func NewUserService(repo domain.UserRespository) UserService {
@@ -39,7 +41,7 @@ type userService struct {
 }
 
 func (u *userService) LoginUser(userName, pass string) error {
-
+	log.Println(pass)
 	_, err := u.repo.GetUser(userName, pass)
 	if err != nil {
 		return domain.ErrUserNotFound
@@ -53,6 +55,8 @@ func (u *userService) SignUp(user domain.User) error {
 	if err != nil {
 		return err
 	}
+
+	user.PasswordHash = generatePasswordHash(user.PasswordHash)
 
 	_, err = u.repo.GetUserName(&user.UserName)
 	if err != nil {
