@@ -32,14 +32,12 @@ func (u *userRepo) Get(ID *int) (domain.User, error) {
 
 func (u *userRepo) GetUser(userName, passwordHash string) (*domain.User, error) {
 	var user *domain.User
-	log.Println("kjkjkj")
 	result := u.db.Where(&domain.User{UserName: userName, PasswordHash: passwordHash}).First(&user)
 	log.Println(&user)
 
 	if result.Error != nil {
-		// Check if the error is due to record not found
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, nil // User not found, return nil without error
+			return nil, nil 
 		}
 		return nil, result.Error
 	}
