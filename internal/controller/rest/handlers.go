@@ -24,23 +24,36 @@ func NewHandler(productService app.ProductService, userService app.UserService) 
 func (h *Handler) InitRouters() *gin.Engine {
 	router := gin.Default()
 
-	productGroup := router.Group("/products")
+	authGroup := router.Group("/auth")
 
 	{
-		productGroup.POST("", h.CreateProduct)
-		productGroup.GET("/:id", h.GetProductByID)
-		productGroup.GET("/page", h.GetPagesProduct)
-		productGroup.DELETE("/:id", h.DeleteProductByID)
-		productGroup.PUT("/:id", h.UpdateProductByID)
+		authGroup.POST("/login", h.LoginUserHandler)
+		authGroup.POST("/sign-up", h.SignUpUserHandler)
 	}
 
-	userGroup := router.Group("/users")
-
+	apiGroup := router.Group("/api",h.userIdentity)
 	{
-		userGroup.POST("/login", h.LoginUserHandler)
-		userGroup.POST("/sign-up", h.SignUpUserHandler)
-		userGroup.GET("/page", h.GetPagesUser)
+		userGroup := apiGroup.Group("/users")
+		{
+			userGroup.GET("/",h.GetPagesUser)
+		}
+		
+		productGroup := apiGroup.Group("/products")
+		{
+			productGroup.POST("", h.CreateProduct)
+			productGroup.GET("/:id", h.GetProductByID)
+			productGroup.GET("/page", h.GetPagesProduct)
+			productGroup.DELETE("/:id", h.DeleteProductByID)
+			productGroup.PUT("/:id", h.UpdateProductByID)
+		}
 	}
+
+	
+	
+	
+
+
+
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfile.Handler))
 	return router

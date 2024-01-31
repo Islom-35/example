@@ -1,13 +1,31 @@
 package app
 
 import (
+	"crypto/sha1"
+	"errors"
 	"example/internal/domain"
+	"fmt"
+	"time"
+
+	"github.com/golang-jwt/jwt"
 )
 
+const (
+	salt       = "hjqrhjqw124617ajfhajs"
+	signingKey = ""
+	tokenTTL   = 12 * time.Hour
+)
+
+type tokenClaims struct {
+	jwt.StandardClaims
+	UserId int `json:"user_id"`
+}
 type UserService interface {
 	SignUp(user domain.User) error
-	LoginUser(userName, pass string) (bool, error)
+	LoginUser(userName, pass string) error
 	FindAll(page, limit int) ([]*domain.User, error)
+	ParseToken(accessToken string) (int, error)
+	GenerateToken(username, password string) (string, error)
 }
 
 func NewUserService(repo domain.UserRespository) UserService {
@@ -20,20 +38,14 @@ type userService struct {
 	repo domain.UserRespository
 }
 
-func (u *userService) LoginUser(userName, pass string) (bool, error) {
-	ok := true
+func (u *userService) LoginUser(userName, pass string) error {
 
-	ok, err := u.repo.GetUserName(&userName)
-	if !ok || err != nil {
-		return false, domain.ErrUserNotFound
+	_, err := u.repo.GetUser(userName, pass)
+	if err != nil {
+		return domain.ErrUserNotFound
 	}
 
-	ok, err = u.repo.GetPassword(&pass)
-	if !ok || err != nil {
-		return false, domain.ErrUserNotFound
-	}
-
-	return true, nil
+	return nil
 }
 
 func (u *userService) SignUp(user domain.User) error {
@@ -42,7 +54,7 @@ func (u *userService) SignUp(user domain.User) error {
 		return err
 	}
 
-	_, err = u.repo.GetUserName(&user.FullName)
+	_, err = u.repo.GetUserName(&user.UserName)
 	if err != nil {
 
 		return domain.ErrUserAlreadyExists
@@ -59,15 +71,59 @@ func (u *userService) FindAll(page, limit int) ([]*domain.User, error) {
 }
 
 func Checker(user domain.User) error {
-	if user.Password == "" {
+	if user.PasswordHash == "" {
 		return domain.ErrInvalidPassword
 	}
 	if user.FullName == "" {
 		return domain.ErrInvalidFullName
 	}
-
 	if user.UserName == "" {
 		return domain.ErrInvalidUserName
 	}
 	return nil
+}
+
+func (u *userService) ParseToken(accessToken string) (int, error) {
+	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("invalid signing method")
+		}
+
+		return []byte(signingKey), nil
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	claims, ok := token.Claims.(*tokenClaims)
+	if !ok {
+		return 0, errors.New("token claims are not of type *tokenClaims")
+	}
+
+	return claims.UserId, nil
+}
+
+func (u *userService) GenerateToken(username, password string) (string, error) {
+	genPassword := generatePasswordHash(password)
+	user, err := u.repo.GetUser(username, genPassword)
+	if err != nil {
+		return "", err
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(tokenTTL).Unix(),
+			IssuedAt:  time.Now().Unix(),
+		},
+		int(user.ID),
+	})
+
+	return token.SignedString([]byte(signingKey))
+}
+
+func generatePasswordHash(password string) string {
+	hash := sha1.New()
+	hash.Write([]byte(password))
+
+	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))
 }

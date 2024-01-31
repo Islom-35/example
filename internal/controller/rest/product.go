@@ -51,6 +51,7 @@ type ErrorResponse struct {
 }
 
 // @Summary Create a new product
+// @Security ApiKeyAuth
 // @Description Create a new product with the provided JSON data
 // @Tags products
 // @Accept json
@@ -59,7 +60,7 @@ type ErrorResponse struct {
 // @Success 201 {object} SuccessResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /products [post]
+// @Router /api/products [post]
 func (h *Handler) CreateProduct(c *gin.Context) {
 	reqBytes, err := io.ReadAll(c.Request.Body)
 	if err != nil {
@@ -84,6 +85,7 @@ func (h *Handler) CreateProduct(c *gin.Context) {
 }
 
 // @Summary Get a product by ID
+// @Security ApiKeyAuth
 // @Description Get product details by providing its ID
 // @Tags products
 // @Accept json
@@ -93,7 +95,7 @@ func (h *Handler) CreateProduct(c *gin.Context) {
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /products/{id} [get]
+// @Router /api/products/{id} [get]
 func (h *Handler) GetProductByID(c *gin.Context) {
 	id, err := getIdFromRequest(c)
 	if err != nil {
@@ -116,6 +118,7 @@ func (h *Handler) GetProductByID(c *gin.Context) {
 }
 
 // @Summary Update a product by ID
+// @Security ApiKeyAuth
 // @Description Update a product by providing its ID and new data
 // @Tags products
 // @Accept json
@@ -126,7 +129,7 @@ func (h *Handler) GetProductByID(c *gin.Context) {
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /products/{id} [put]
+// @Router /api/products/{id} [put]
 func (h *Handler) UpdateProductByID(c *gin.Context) {
 	id, err := getIdFromRequest(c)
 	if err != nil {
@@ -156,6 +159,7 @@ func (h *Handler) UpdateProductByID(c *gin.Context) {
 }
 
 // @Summary Get paginated list of products
+// @Security ApiKeyAuth
 // @Description Get a paginated list of products based on provided input
 // @Tags products
 // @Accept json
@@ -164,7 +168,7 @@ func (h *Handler) UpdateProductByID(c *gin.Context) {
 // @Success 200 {array} ProductResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /products [get]
+// @Router /api/products [get]
 func (h *Handler) GetPagesProduct(c *gin.Context) {
 	reqBytes, err := io.ReadAll(c.Request.Body)
 	if err != nil {
@@ -188,6 +192,7 @@ func (h *Handler) GetPagesProduct(c *gin.Context) {
 }
 
 // @Summary Delete a product by ID
+// @Security ApiKeyAuth
 // @Description Delete a product by providing its ID
 // @Tags products
 // @Accept json
@@ -196,7 +201,7 @@ func (h *Handler) GetPagesProduct(c *gin.Context) {
 // @Success 200 {object} SuccessResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /products/{id} [delete]
+// @Router /api/products/{id} [delete]
 func (h *Handler) DeleteProductByID(c *gin.Context) {
 	id, err := getIdFromRequest(c)
 	if err != nil {

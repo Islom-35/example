@@ -3,7 +3,7 @@ package rest
 import (
 	"encoding/json"
 	"example/internal/domain"
-	"example/pkg/jwt"
+	
 	"io"
 
 	"net/http"
@@ -24,7 +24,7 @@ type User struct {
 
 // @Summary Login a user
 // @Description Login a user by providing their full name and password
-// @Tags users
+// @Tags auth
 // @Accept json
 // @Produce json
 // @Param user body loginRequest true "loginRequest object that needs to be login"
@@ -32,51 +32,45 @@ type User struct {
 // @Failure 400 {object} ErrorResponse
 // @Failure 401 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /users/login [post]
+// @Router /auth/login [post]
 func (h *Handler) LoginUserHandler(ctx *gin.Context) {
 	var req loginRequest
-
-	// Decoding requested body to Go object
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body: " + err.Error()})
 		return
 	}
 
-	passed, err := h.userService.LoginUser(req.UserName, req.Password)
+	err := h.userService.LoginUser(req.UserName, req.Password)
 
 	if err != nil {
 
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid password or username "})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	if passed {
-		token, err := jwt.CreateToken(req.UserName)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Phone number not found: " + err.Error()})
-			return
-		}
-
-		response := gin.H{"access_token": token}
-
-		ctx.JSON(http.StatusOK, response)
-
-	} else {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+	token, err := h.userService.GenerateToken(req.UserName,req.Password)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "UserName not found: " + err.Error()})
+		return
 	}
+
+	response := gin.H{"access_token": token}
+
+	ctx.JSON(http.StatusOK, response)
+
 }
 
 // @Summary Sign up a new user
 // @Description Sign up a new user with the provided JSON data
-// @Tags users
+// @Tags auth
 // @Accept json
 // @Produce json
 // @Param user body User true "User object that needs to be signed up"
 // @Success 201 {object} SuccessResponse
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /users/sign-up [post]
+// @Router /auth/sign-up [post]
 func (h *Handler) SignUpUserHandler(c *gin.Context) {
 	reqBytes, err := io.ReadAll(c.Request.Body)
 	if err != nil {
@@ -102,6 +96,7 @@ func (h *Handler) SignUpUserHandler(c *gin.Context) {
 }
 
 // @Summary Get paginated list of users
+// @Security ApiKeyAuth
 // @Description Get a paginated list of users based on provided input
 // @Tags users
 // @Accept json
@@ -110,7 +105,7 @@ func (h *Handler) SignUpUserHandler(c *gin.Context) {
 // @Success 200 {array} User
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /users/page [get]
+// @Router /api/users/page [get]
 func (h *Handler) GetPagesUser(c *gin.Context) {
 	reqBytes, err := io.ReadAll(c.Request.Body)
 	if err != nil {

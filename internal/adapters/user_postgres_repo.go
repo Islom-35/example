@@ -1,8 +1,9 @@
 package adapters
 
 import (
+	"errors"
 	"example/internal/domain"
-	
+	"log"
 
 	"gorm.io/gorm"
 )
@@ -18,9 +19,7 @@ func NewUserRepository(db *gorm.DB) domain.UserRespository {
 }
 
 func (u *userRepo) Save(user *domain.User) error {
-	
 	err := u.db.Create(&user)
-
 	return err.Error
 }
 
@@ -31,22 +30,27 @@ func (u *userRepo) Get(ID *int) (domain.User, error) {
 	return *user, result.Error
 }
 
-func (u *userRepo) GetUserName(userName *string) (bool, error) {
-	ok := true
-	
-	result := u.db.Where("full_name = ?", *userName)
+func (u *userRepo) GetUser(userName, passwordHash string) (*domain.User, error) {
+	var user *domain.User
+
+	result := u.db.Where(&domain.User{UserName: userName, PasswordHash: passwordHash}).First(&user)
+	log.Println(user)
 
 	if result.Error != nil {
-		return false, result.Error
+		// Check if the error is due to record not found
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil // User not found, return nil without error
+		}
+		return nil, result.Error
 	}
 
-	return ok, nil
+	return user, nil
 }
 
-func (u *userRepo) GetPassword(password *string) (bool, error) {
+func (u *userRepo) GetUserName(userName *string) (bool, error) {
 	ok := true
-	
-	result := u.db.Where("password = ?", *password)
+
+	result := u.db.Where("full_name = ?", *userName)
 
 	if result.Error != nil {
 		return false, result.Error

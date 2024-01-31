@@ -1,13 +1,16 @@
 package domain
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type User struct {
-	gorm.Model       
-	UserName string `json:"user_name"`
-	FullName string `json:"full_name"`
-	Password string `json:"password"`
+    gorm.Model
+    UserName     string `gorm:"type:varchar(255);column:user_name" json:"user_name"`
+    FullName     string `gorm:"type:varchar(255);column:full_name" json:"full_name"`
+    PasswordHash string `gorm:"type:text;column:password_hash" json:"password"`
 }
+
 
 type GetPaginationInput struct {
 	Page  uint `json:"page"`
@@ -16,8 +19,9 @@ type GetPaginationInput struct {
 
 type UserRespository interface {
 	Save(user *User) error
-	Get(ID *int) (User, error)
-	GetPassword(password *string) (bool, error)
+	// Get(ID *int) (User, error)
+	// GetPassword(password *string) (bool, error)
 	GetUserName(userName *string) (bool, error)
+	GetUser(userName, password_hash string) (*User, error)
 	FindAll(page, limit int) ([]*User, error)
 }
