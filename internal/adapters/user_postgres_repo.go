@@ -32,12 +32,13 @@ func (u *userRepo) Get(ID *int) (domain.User, error) {
 
 func (u *userRepo) GetUser(userName, passwordHash string) (*domain.User, error) {
 	var user *domain.User
+
 	result := u.db.Where(&domain.User{UserName: userName, PasswordHash: passwordHash}).First(&user)
 	log.Println(&user)
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return nil, nil 
+			return nil, nil
 		}
 		return nil, result.Error
 	}

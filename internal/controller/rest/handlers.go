@@ -31,13 +31,13 @@ func (h *Handler) InitRouters() *gin.Engine {
 		authGroup.POST("/sign-up", h.SignUpUserHandler)
 	}
 
-	apiGroup := router.Group("/api",h.userIdentity)
+	apiGroup := router.Group("/api", h.userIdentity)
 	{
 		userGroup := apiGroup.Group("/users")
 		{
-			userGroup.GET("/",h.GetPagesUser)
+			userGroup.GET("/", h.GetPagesUser)
 		}
-		
+
 		productGroup := apiGroup.Group("/products")
 		{
 			productGroup.POST("", h.CreateProduct)
@@ -47,13 +47,6 @@ func (h *Handler) InitRouters() *gin.Engine {
 			productGroup.PUT("/:id", h.UpdateProductByID)
 		}
 	}
-
-	
-	
-	
-
-
-
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfile.Handler))
 	return router

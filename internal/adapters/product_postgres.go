@@ -34,7 +34,7 @@ func (p *productRepo) Update(ID *int, inp *domain.UpdateProductInput) error {
 	product, err := p.Get(ID)
 	if err != nil {
 		return err
-	}
+	}	
 
 	product.Name = *inp.Name
 	product.Price = *inp.Price
