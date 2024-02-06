@@ -102,7 +102,7 @@ func (h *Handler) GetProductByID(c *gin.Context) {
 		return
 	}
 
-	order, err := h.productService.Get(&id)
+	product, err := h.productService.Get(&id)
 
 	if err != nil {
 		if errors.Is(err, domain.ErrProductNotFound) {
@@ -113,7 +113,7 @@ func (h *Handler) GetProductByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, order)
+	c.JSON(http.StatusOK, product)
 }
 
 // @Summary Update a product by ID
